@@ -1,0 +1,30 @@
+def count_top3(years):
+    lst = []
+    for y in years:
+        lst.append(pd.read_csv('yob%s.txt' % y, names=['name', 'sex', 'count']))
+    lst = pd.concat(lst)
+    lst = lst.groupby('name').sum()
+    lst = lst.sort_values(['count'], ascending=False).reset_index()
+    return lst.head(3)['name'].tolist()
+
+
+def count_dynamics(years):
+    res = {}
+    for y in years:
+        data = pd.read_csv('yob%s.txt' % str(y), names=['name', 'sex', 'count'])
+        dct = data.groupby('sex').sum().to_dict()['count']
+        for k in dct.keys():
+            if k not in res.keys():
+                res[k] = [dct[k]]
+            else:
+                res[k].append(dct[k])
+    return res
+
+
+# print(count_top3([1880]) == ['John', 'William', 'Mary'])
+# print(count_top3([1900, 1950, 2000]) == ['James', 'John', 'Robert'])
+# print(counter(['1880', '1900']))
+print(count_dynamics([1900, 1950, 2000]) == {
+  'F': [299810, 1713259, 1814922],
+  'M': [150486, 1790871, 1962744]
+})
